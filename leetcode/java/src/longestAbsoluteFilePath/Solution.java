@@ -128,11 +128,13 @@ public class Solution {
             int depth=line.lastIndexOf('\t')+1;//if not found, -1+1=0 is ok
             int name=line.length() - depth;
             if (debug) System.out.format("depth="+depth+",len="+name+",queue "+queue.size()+"="+queue.get(queue.size()-1)+":"+line+"\n");
-            while (queue.size()-1>depth) queue.remove(queue.size()-1);
             if (line.contains(".")) {
                 max=Math.max(max, name+queue.get(queue.size()-1));
             } else {
-                queue.add(name + 1 + queue.get(queue.size()-1));
+                if (depth<queue.size())
+                    queue.add(name+1+queue.get(depth));
+                else
+                    queue.set(depth+1, name + 1 + queue.get(depth));
             }
         }
         return max;
