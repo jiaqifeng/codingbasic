@@ -42,6 +42,8 @@ Notice that a/aa/aaa/file1.txt is not the longest file path, if there is another
 Origin link: https://leetcode.com/problems/longest-absolute-file-path/
  */
 
+import java.util.*;
+
 /**
  * Created by jack on 16-11-30.
  */
@@ -53,50 +55,34 @@ Origin link: https://leetcode.com/problems/longest-absolute-file-path/
 public class Solution {
     static final boolean debug=true;
     static final int MAX_DEPTH=1000;
-    boolean countTab=true;//false to count name
-    int queue[]=new int[MAX_DEPTH];
-    int head=0;
-    int maxlen=0;
-    int namelen=0;
-    boolean isFile=false;
-    int sumQ() {
-        int sum=0;
-        for (int i=0;i<head;i++) {
-            System.out.println("queue["+i+"]="+queue[i]);
-            sum+=queue[i];
-        }
-        return sum;
-    }
-    void init() {
-        countTab=true;
-        head=0;
-        maxlen=0;
-        namelen=0;
-        isFile=false;
-    }
+
     public int lengthLongestPath(String input) {
+        int queue[]=new int[MAX_DEPTH]; // store dir path length, plus '/' appended
+        int qhead=1;//queue[0] for 0, simplify length adding
         int i=0;
-        int depth=0;
-        init();
-        while (i < input.length()) {
-            if (input.charAt(i)=='\t' && countTab==true) {
-                if (debug) System.out.print("\\t");
-                depth++;//todo seems we could count all \t now and void counttab flag
-            } else if (input.charAt(i)=='.') {
-                if (debug) System.out.print(".");
+        int indent=1;// '\t' counter, like head, start from 1
+        boolean countTab=true;//false: when count name length, it is not said file name may include '\t', but let's make things better here
+
+        int maxlen=0;
+        int namelen=0;
+        boolean isFile=false;
+
+        queue[0]=0;
+        for (i=0; i < input.length(); i++) {
+            if (input.charAt(i)=='\t' && countTab==true) {    if (debug) System.out.print("\\t");
+                indent++;
+            } else if (input.charAt(i)=='.') {    if (debug) System.out.print(".");
                 if (i<input.length()-1 && input.charAt(i+1)!='\n')
-                    isFile=true;//todo this should not be the last string
+                    isFile=true;//The name of a file contains at least a . and an extension.
                 namelen++;
-            } else if (input.charAt(i)=='\n' || i==input.length()-1) {
-                if (debug) System.out.println("\nfind "+input.charAt(i)+", namelen="+namelen+", depth="+depth+",isFile="+isFile+",before push head="+head);
-                if (i==input.length()-1) namelen++;
+            } else if (input.charAt(i)=='\n' || i==input.length()-1) {    if (debug) System.out.println("\nfind "+input.charAt(i)+", namelen="+namelen+", depth="+indent+",isFile="+isFile+",before push head="+qhead);
+                if (i==input.length()-1) namelen++;//end of input should be file/dir name
                 if (!isFile) {
-                    head=depth+1;
-                    queue[depth]=namelen+1;//add / to lenght
+                    qhead=indent+1;
+                    queue[indent]=namelen+1+queue[indent-1];//1 for '/'
                 } else {
-                    if (debug) System.out.print("sumQ=" + sumQ());
-                    head=depth;
-                    int len = sumQ() + namelen;
+                    qhead=indent;
+                    int len = queue[qhead-1] + namelen;
                     if (maxlen < len)
                         maxlen = len;
                 }
@@ -104,17 +90,53 @@ public class Solution {
                 countTab=true;
                 namelen=0;
                 isFile=false;
-                depth=0;
+                indent=1;
             } else {
                 if (debug) System.out.print(input.charAt(i));
                 namelen++;
                 countTab=false;
             }
-            i++;
         }
         return maxlen;
     }
 
+    public int lengthLongestPathV2(String input) {
+        int max=0;
+        String[] lines=input.split("\n");
+        Deque<Integer> queue=new ArrayDeque<Integer>(10);
+        queue.push(0);
+        for (String line : lines) {
+            int depth=line.lastIndexOf('\t')+1;//if not found, -1+1=0 is ok
+            int name=line.length() - depth;
+            if (debug) System.out.format("depth="+depth+",len="+name+",queue "+queue.size()+"="+queue.peekLast()+":"+line+"\n");
+            while (queue.size()-1>depth) queue.removeLast();
+            if (line.contains(".")) {
+                max=Math.max(max, name+queue.peekLast());
+            } else {
+                queue.add(name + 1 + queue.peekLast());
+            }
+        }
+        return max;
+    }
+
+    public int lengthLongestPathV3(String input) {
+        int max=0;
+        String[] lines=input.split("\n");
+        ArrayList<Integer> queue=new ArrayList<Integer>();
+        queue.add(0);
+        for (String line : lines) {
+            int depth=line.lastIndexOf('\t')+1;//if not found, -1+1=0 is ok
+            int name=line.length() - depth;
+            if (debug) System.out.format("depth="+depth+",len="+name+",queue "+queue.size()+"="+queue.get(queue.size()-1)+":"+line+"\n");
+            while (queue.size()-1>depth) queue.remove(queue.size()-1);
+            if (line.contains(".")) {
+                max=Math.max(max, name+queue.get(queue.size()-1));
+            } else {
+                queue.add(name + 1 + queue.get(queue.size()-1));
+            }
+        }
+        return max;
+    }
     public static void main(String[] args) {
         String t=new String("dir\n\tsubdir1\n\tsubdir2\n\t\tfile.exe");
         String t2=new String("dir\n" +
@@ -124,7 +146,10 @@ public class Solution {
                 "\tsubdir3\n" +
                 "\t\tfilealonenamebehere.ttt");
         String t3="dir\n\tsubdir1\n\tsubdir2\n\t\tfile.ext";
-        int ret=new Solution().lengthLongestPath(t3);
+        Solution so=new Solution();
+        int ret=so.lengthLongestPathV2(t3);
         System.out.println("ret "+ret);
+        ret = so.lengthLongestPathV3("dir\n\tsubdir1\n\t\tfile1.ext\n\t\tsubsubdir1\n\tsubdir2\n\t\tsubsubdir2\n\t\t\tfile2.ext");
+        System.out.println("expect 32 get "+ret);
     }
 }
