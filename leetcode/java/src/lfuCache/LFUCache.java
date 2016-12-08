@@ -180,39 +180,26 @@ public class LFUCache {
         void update() {
             int frequency=headNode.frequency;
             Node head=headNode;
-            Node nodeAfterHead=(Node)head.next;
 
             headNode.entry=(Entry)removeFromList(headNode.entry);
 
-            // remove current node if it's empty, this should done at last
-            if (headNode.entry==null) {
-                if (head==nodeList) {
-                    nodeList = (Node) headNode.removeFromList(nodeList);
-                    head=nodeList;
-                } else {
-                    head = (Node) head.prev;
-                    nodeList = (Node) headNode.removeFromList(nodeList);
-                }
-            }
-
-            if (nodeList==null) { // this is impossible
-                Node newNode=new Node(frequency+1, this);
-                nodeList=newNode;
-                this.headNode=newNode;
-                return;
-            }
-
+            Node nodeAfterHead=(Node)head.next;
             if (nodeAfterHead.frequency==frequency+1) {
                 if (debug) System.out.println("find frequency="+frequency+"+1 node");
                 addToListAsLast(nodeAfterHead.entry);
                 this.headNode=nodeAfterHead;
             } else {
-                if (debug) System.out.println("add new frequency="+frequency+" node after");
+                if (debug) System.out.println("add new frequency="+frequency+"+1 node");
                 Node newNode=new Node(frequency+1, this);
                 this.next=this;
                 this.prev=this;
                 this.headNode=newNode;
                 head.addNext(newNode);
+            }
+
+            // remove current node if it's empty, this should done at last
+            if (head.entry==null) {
+                nodeList = (Node) head.removeFromList(nodeList);
             }
         }
     }
