@@ -183,12 +183,19 @@ public class LFUCache {
             Node nodeAfterHead=(Node)head.next;
 
             headNode.entry=(Entry)removeFromList(headNode.entry);
+
+            // remove current node if it's empty, this should done at last
             if (headNode.entry==null) {
-                head = (Node)head.prev;
-                nodeList = (Node) headNode.removeFromList(nodeList);
+                if (head==nodeList) {
+                    nodeList = (Node) headNode.removeFromList(nodeList);
+                    head=nodeList;
+                } else {
+                    head = (Node) head.prev;
+                    nodeList = (Node) headNode.removeFromList(nodeList);
+                }
             }
 
-            if (nodeList==null) {
+            if (nodeList==null) { // this is impossible
                 Node newNode=new Node(frequency+1, this);
                 nodeList=newNode;
                 this.headNode=newNode;
@@ -240,20 +247,29 @@ public class LFUCache {
             return;
         }
         System.out.print("-- cache -- " + message);
+        int i,total=0;
         do {
             Entry entry=node.entry;
+            i=0;
             System.out.format("\nfreq=%2d:", node.frequency);
             if (entry==null) {
                 node=(Node)node.next;
                 continue;
             }
+            //count entries
+            do {
+                entry=(Entry)entry.next;i++;
+            } while (entry!=node.entry);
+            System.out.format("%3d entry", i);
+
             do {
                 System.out.format(" (%4d,%4d)", entry.key, entry.value);
                 entry=(Entry)entry.next;
             } while (entry!=node.entry);
             node=(Node)node.next;
+            total+=i;
         } while (node!=nodeList);
-        System.out.println("\n-- cache end--");
+        System.out.println("\n-- cache end--, total "+total+" entry, total "+map.size()+" in map");
     }
     static boolean assertEq(Object expect, Object value, String message) {
         if (!expect.equals(value)) {
@@ -423,7 +439,7 @@ public class LFUCache {
         System.out.println("total "+operations.length+" cases");
         LFUCache cache=null;
         for (int i=0;i<operations.length;i++) {
-            System.out.println("Run "+operations[i]+" ("+parameters[i][0]+","+parameters[i][1]+") expect "+expect[i]);
+            System.out.println("Run case "+i+"/"+operations.length+" "+operations[i]+" ("+parameters[i][0]+","+parameters[i][1]+") expect "+expect[i]);
             if ("set".equals(operations[i])) {
                 System.out.println("* execute set " + parameters[i][0] + "," + parameters[i][1]);
                 cache.set(parameters[i][0], parameters[i][1]);
