@@ -42,13 +42,21 @@ import java.util.Map;
 
  */
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by jack on 16-12-2.
  */
 public class LFUCache {
+    static final boolean debug=true;
     int capacity;
     Map<Integer, Entry> map;
     Node nodeList;
@@ -168,6 +176,7 @@ public class LFUCache {
         void setHeadNode(Node head) {
             this.headNode=head;
         }
+        //I forgot update this.headNode so ... I fix it at last
         void update() {
             int frequency=headNode.frequency;
             Node head=headNode;
@@ -222,8 +231,8 @@ public class LFUCache {
             nodeList=(Node)node.removeFromList(nodeList);
         return entry;
     }
-    //-----------------------------------------------
-    static final boolean debug=true;
+    //----------------------------------------------- above could copy to leetcode directly
+
     void printCache(String message) {
         Node node=nodeList;
         if (node==null) {
@@ -287,7 +296,7 @@ public class LFUCache {
         assertEq(5, cache.get(5), "case 9");   if (debug) cache.printCache("after get(5)");    // returns 4
     }
 
-    public static void main(String[] args) {
+    public static void main9(String[] args) {
         String[] operation={"set","set","set","set","set","get","set","get","get","set","get","set","set","set","get","set","get","get","get","get","set","set","get","get","get","set","set","get","set","get","set","get","get","get","set","set","set","get","set","get","get","set","set","get","set","set","set","set","get","set","set","get","set","set","get","set","set","set","set","set","get","set","set","get","set","get","get","get","set","get","get","set","set","set","set","get","set","set","set","set","get","get","get","set","set","set","get","set","set","set","get","set","set","set","get","get","get","set","set","set","set","get","set","set","set","set","set","set","set"};
         Integer[] expect={null,null,null,null,null,-1,null,19,17,null,-1,null,null,null,-1,null,-1,5,-1,12,null,null,3,5,5,null,null,1,null,-1,null,30,5,30,null,null,null,-1,null,-1,24,null,null,18,null,null,null,null,14,null,null,18,null,null,11,null,null,null,null,null,18,null,null,-1,null,4,29,30,null,12,11,null,null,null,null,29,null,null,null,null,17,-1,18,null,null,null,-1,null,null,null,20,null,null,null,29,18,18,null,null,null,null,20,null,null,null,null,null,null,null};
         Integer[][] parameter=  {{10,13},{3,17},{6,11},{10,5},{9,10},{13},{2,19},{2},{3},{5,25},{8},{9,22},{5,5},{1,30},{11},{9,12},{7},{5},{8},{9},{4,30},{9,3},{9},{10},{10},{6,14},{3,1},{3},{10,11},{8},{2,14},{1},{5},{4},{11,4},{12,24},{5,18},{13},{7,23},{8},{12},{3,27},{2,12},{5},{2,9},{13,4},{8,18},{1,7},{6},{9,29},{8,21},{5},{6,30},{1,12},{10},{4,15},{7,22},{11,26},{8,17},{9,29},{5},{3,4},{11,30},{12},{4,29},{3},{9},{6},{3,4},{1},{10},{3,29},{10,28},{1,20},{11,13},{3},{3,12},{3,8},{10,9},{3,26},{8},{7},{5},{13,17},{2,27},{11,15},{12},{9,19},{2,15},{3,16},{1},{12,17},{9,1},{6,19},{4},{5},{5},{8,1},{11,7},{5,2},{9,28},{1},{2,2},{7,4},{4,22},{7,24},{9,26},{13,28},{11,26}};
@@ -304,6 +313,128 @@ public class LFUCache {
                 boolean pass=assertEq(expect[i], cache.get(parameter[i][0]),"get("+parameter[i][0]+") should be "+expect[i]);
                 if (debug) cache.printCache("current cache");
                 if (!pass) break;
+            }
+        }
+    }
+
+    public static void main3(String[] args) {
+        int[] operation={};
+        Integer[] expect={};
+        Integer[][] parameter={};
+
+        System.out.println("total "+operation.length+" cases");
+        LFUCache cache=new LFUCache(1101);
+        for (int i=0;i<operation.length;i++) {
+            int op = operation[i];
+            if (op==1) {
+                System.out.println("* execute set " + parameter[i][0] + "," + parameter[i][1]);
+                cache.set(parameter[i][0], parameter[i][1]);
+                if (debug) cache.printCache("current cache");
+            } else if (op==0) {
+                System.out.println("* execute get " + parameter[i][0] + " expect " + expect[i]);
+                boolean pass=assertEq(expect[i], cache.get(parameter[i][0]),"get("+parameter[i][0]+") should be "+expect[i]);
+                if (debug) cache.printCache("current cache");
+                if (!pass) break;
+            }
+        }
+    }
+
+    static String[] read() {
+        FileReader fr=null;
+        BufferedReader br=null;
+        try {
+            fr=new FileReader("case20.txt");
+            br = new BufferedReader(fr);
+
+            String line=br.readLine();
+            operations=line.split(",");
+            Pattern p=Pattern.compile("(LFUCache|get|set)");
+            Matcher m;
+            for (int i=0;i<operations.length;i++) {
+                m=p.matcher(operations[i]);
+                if (m.find()) {
+                    System.out.println("get:"+m.group(0));
+                    operations[i]=m.group(0);
+                } else {
+                    System.out.println("parse fail:"+operations[i]);
+                    break;
+                }
+            }
+
+            String[] pars=br.readLine().split("],\\[");
+            parameters=new Integer[pars.length][2];
+            p= Pattern.compile("(\\d+),(\\d+)");
+            Pattern p1=Pattern.compile("(\\d+)");
+            for (int i=0;i<parameters.length;i++) {
+                if (pars[i].contains(",")) {
+                    m=p.matcher(pars[i]);
+                    if (m.find()) {
+                        System.out.println("get parameter "+m.group(1)+" "+m.group(2));
+                        parameters[i][0]=Integer.parseInt(m.group(1));
+                        parameters[i][1]=Integer.parseInt(m.group(2));
+                    } else {
+                        System.out.println("parse fail:"+pars[i]);
+                        break;
+                    }
+                } else {
+                    m=p1.matcher(pars[i]);
+                    if (m.find()) {
+                        System.out.println("get parameter "+m.group(0));
+                        parameters[i][0]=Integer.parseInt(m.group(0));
+                        parameters[i][1]=0;
+                    } else {
+                        System.out.println("parse fail:"+pars[i]);
+                        break;
+                    }
+                }
+            }
+
+            p=Pattern.compile("([+-]?\\d+|null)");
+            String[] exp=br.readLine().split(",");
+            expect=new Integer[exp.length];
+            for (int i=0;i<exp.length;i++) {
+                m=p.matcher(exp[i]);
+                if (m.find()) {
+                    System.out.println("get expect "+m.group(0));
+                    expect[i]=0;
+                    if (!"null".equals(m.group()))
+                        expect[i]=Integer.parseInt(m.group(0));
+                } else {
+                    System.out.println("parse fail:"+exp[i]);
+                    break;
+                }
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("could not find file");
+        } catch (IOException e) {
+            System.out.println("get io exception"+e);
+        }
+        return null;
+    }
+    static String[] operations;
+    static Integer[][] parameters;
+    static Integer[] expect;
+
+    public static void main(String[] args) {
+        read();
+
+        System.out.println("total "+operations.length+" cases");
+        LFUCache cache=null;
+        for (int i=0;i<operations.length;i++) {
+            System.out.println("Run "+operations[i]+" ("+parameters[i][0]+","+parameters[i][1]+") expect "+expect[i]);
+            if ("set".equals(operations[i])) {
+                System.out.println("* execute set " + parameters[i][0] + "," + parameters[i][1]);
+                cache.set(parameters[i][0], parameters[i][1]);
+                if (debug) cache.printCache("current cache");
+            } else if ("get".equals(operations[i])) {
+                System.out.println("* execute get " + parameters[i][0] + " expect " + expect[i]);
+                boolean pass=assertEq(expect[i], cache.get(parameters[i][0]),"get("+parameters[i][0]+") should be "+expect[i]);
+                if (debug) cache.printCache("current cache");
+                if (!pass) break;
+            } else if ("LFUCache".equals(operations[i])) {
+                cache=new LFUCache(parameters[i][0]);
             }
         }
     }
