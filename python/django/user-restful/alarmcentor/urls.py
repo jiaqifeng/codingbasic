@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 from alarmcentor import views
+from snippets import urls as snippets_urls
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -24,5 +25,6 @@ router.register(r'users', views.UserViewSet)
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framwork'))
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framwork')),
+    url(r'^snip/', include(snippets_urls)),
 ]

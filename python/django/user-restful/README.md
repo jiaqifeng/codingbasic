@@ -21,3 +21,7 @@ $ curl -H 'Accept: application/json; indent=4' -u admin:password123 http://127.0
         "is_staff": true
     }
 ]
+
+http http://localhost:8000/snip/snippets/
+http http://localhost:8000/snip/snippets/1/
+

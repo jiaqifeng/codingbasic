@@ -1,0 +1,61 @@
+<!DOCTYPE html>  
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">  
+<head>  
+    <meta charset="utf-8" />  
+    <title>download js generated content</title>
+</head>  
+<body>
+  <script>
+    function downloadFile(fileName, content){
+        console.log('in downloadFile');
+        try {
+            var aLink = document.createElement('a');
+            var blob = new Blob([content]);
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("click", false, false);
+            aLink.download = fileName;
+            aLink.style.display='none';
+            aLink.href = URL.createObjectURL(blob);
+            document.body.appendChild(aLink);
+            aLink.click();
+            document.body.removeChild(aLink);
+            //aLink.dispatchEvent(evt);
+            console.log('in downloadFile done');
+        } catch (error) {
+            console.log("exception", error);
+        }
+    };
+    function download() {
+        downloadFile("detail.js", '{"abc":3}');
+    }
+<!--     function downloadFile2(aLink, fileName, content){ -->
+<!--     aLink.download = fileName; -->
+<!--     aLink.href = "data:text/plain," + content; -->
+<!--     } -->
+<!--     function download3() { -->
+<!--     var $a = document.createElement('a'); -->
+<!--     $a.setAttribute("href", "some.json"); -->
+<!--     $a.setAttribute("download", "abc"); -->
+
+<!--     var evObj = document.createEvent('MouseEvents'); -->
+<!--     evObj.initMouseEvent( 'click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null); -->
+<!--     $a.dispatchEvent(evObj); -->
+<!--     }; -->
+
+<!-- var eleButton = document.querySelector('input[type="button"]');     -->
+<!--     if ('download' in document.createElement('a')) { -->
+<!--     console.log('support download'); -->
+<!--     // 作为test.html文件下载 -->
+<!--     eleButton.addEventListener('click', function () { -->
+<!--         funDownload(eleTextarea.value, 'test.html');     -->
+<!--     }); -->
+<!--     } else { -->
+<!--     console.log('not support download'); -->
+<!--     eleButton.onclick = function () { -->
+<!--         alert('浏览器不支持');     -->
+<!--     }; -->
+<!-- } -->
+  </script>
+  <input type="button" onclick="download()" value="download"> 
+</body>  
+</html>  

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>使用JS把文本内容作为html文件下载</title>
+
+
+<body>
+<div id="header">
+	<a href="http://www.zhangxinxu.com/" class="logo" title="回到鑫空间-鑫生活首页">
+    	<img alt="张鑫旭-鑫空间-鑫生活" src="abc_files/zxx_home_logo.png" border="0">
+    </a>
+<a href="http://www.yidengxuetang.com/recruit/" target="_blank" class="topa" onclick="_gaq.push(['_trackEvent', 'YIDENG', 'click', 'from study']);"><img src="abc_files/zj2.png"></a></div>
+<div id="main">
+	<h1>使用JS把文本内容作为html文件下载实例页面</h1>
+    <a href="http://www.zhangxinxu.com/wordpress/?p=6252" id="back" style="">回到相关文章 »</a>
+    <div id="body">
+    	<div id="effect" class="part">
+        	<h3>效果：</h3>
+            <div class="show">
+            	<div class="demo">
+                	<textarea rows="11">&lt;!doc</textarea>
+					<p><input value="作为test.html文件下载" type="button"></p>
+                </div>
+                
+            </div>
+        </div>  
+        </div>     
+    </div>
+</div>
+
+<script type="text/javascript" async="" src="abc_files/ga.js"></script><script>
+  var eleTextarea = document.querySelector('textarea');
+  var eleButton = document.querySelector('input[type="button"]');
+
+  console.log('type=', typeof eleTextarea.value);
+  // 下载文件方法
+  var funDownload = function (content, filename) {
+  console.log('value type', typeof(content));
+  console.log('cool');
+  var eleLink = document.createElement('a');
+  eleLink.download = filename;
+  eleLink.style.display = 'none';
+  // 字符内容转变成blob地址
+  //content="some data";
+  var blob = new Blob([content]);
+  eleLink.href = URL.createObjectURL(blob);
+  // 触发点击
+  document.body.appendChild(eleLink);
+  eleLink.click();
+  // 然后移除
+  document.body.removeChild(eleLink);
+  };
+
+  if ('download' in document.createElement('a')) {
+  // 作为test.html文件下载
+  eleButton.addEventListener('click', function () {
+
+  //funDownload(eleTextarea.value, 'test.json');
+    funDownload("nuuu", 'test.json');	
+  });
+  } else {
+  eleButton.onclick = function () {
+  alert('浏览器不支持');	
+  };
+  }
+</script>
+
+
+<div id="footer">
+  	Designed &amp; Powerd by <a href="http://www.zhangxinxu.com/">zhangxinxu</a><br>
+    Copyright© 张鑫旭-鑫空间-鑫生活<br>
+    <a href="http://www.miibeian.gov.cn/" target="_blank">鄂ICP备09015569号</a>     
+</div>
+
+</body></html>
